@@ -1,0 +1,90 @@
+(wcw9)
+
+sort_list_bg:
+	add $a1, $a1, 40
+	addi $a3, 40
+	mov.s $f4, $f6
+	j sort_list
+
+sort_list_lt:
+	add $a1, $a1, 40
+	addi $a3, 40
+	j sort_list
+
+sort_list_ne:
+	l.s $f6, 32($a1)
+	c.le.s $f4, $f6
+	bc1t sort_list_bg
+	bc1f sort_list_lt
+
+sort_list:
+	# a0 = # of items
+	# a1 = heap memory pointer
+	# a2 = total_mem
+	# a3 = at_mem
+	li.s $f4, 0.0 # max value
+	bne $a3, $a2, sort_list_ne
+	
+	li $t0, -1
+	mul $t0, $a2, $t0
+	add $a1, $a1, $t0
+
+	j print_biggest
+	
+	jr $ra
+
+print_biggest:
+	li $v0, 2
+	li.s $f12, 5.5
+	syscall
+	
+#### 
+#### ATTEMPT
+#### NUMBER
+#### TWO
+####
+
+sort_list_increment:
+	mov.s $f4, $f6
+	addi $a1, $a1, 40
+	addi $a3, $a3, 40
+	
+	li $v0, 2
+	li.s $f0 5.5
+	syscall
+	
+
+sort_reset_loop:
+	li $t0, -1
+	li $a3, 0
+	
+	mul $t0, $a2, $t0
+	add $a1, $a1, $t0
+	
+	li.s $f4, 0.0 # max value
+	
+
+sort_list:
+	l.s $f6 32($a1) # ratio
+	
+	li $v0, 2
+	mov.s $f12, $f6
+	syscall
+	
+	c.le.s $f4, $f6
+	bc1t sort_list_increment
+	
+	addi $sp, $sp, -4
+	sw $ra 0($sp)
+	
+	beq $a3, $a2, sort_reset_loop
+	
+	lw $ra 0($sp)
+	addi $sp, $sp, 4
+	
+	jr $ra	
+	
+	
+
+
+Both of my sort attempts are present in this file. I tried to do both a Selection sort and  a basic maximum sort (finding the maximum and removing it each time) but it was hard to do without the control flow of a while() and if statements. I also do not like the repetitiveness of having to save the scope of each label before progressing on to another jump. It's arduous.
